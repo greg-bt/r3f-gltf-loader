@@ -1,11 +1,15 @@
 ## r3f-gltf-loader
 
-Example of WebXR and gltf loading with `react-three-fiber`.
+Example of gltf loading and WebXR with `react-three-fiber`. 
 
-WebXR will only work over HTTPS, therefore the `--experimental-https` flag should be set.
-
-```bash
-npm run dev
+WebXR only works over HTTPS so experimental https has to be enable on the development server:
+```json
+{
+  "scripts": {
+    "dev": "next dev --experimental-https"
+  }
+}
 ```
-
 [https://localhost:3000](https://localhost:3000)
+
+The environment HDRI was taken from [Polyhaven](https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky).
