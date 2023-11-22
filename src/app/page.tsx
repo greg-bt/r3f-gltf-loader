@@ -5,12 +5,12 @@ import { Environment, OrbitControls, TransformControls } from '@react-three/drei
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { TileableFloor, TileableRoof } from './components/TileablePlane';
 import { useState } from 'react';
-import { Object3D } from 'three';
 
 interface ModelProps extends MeshProps {
   src: string
 }
 
+// Load GLTF Model
 const Model = ({ src, castShadow, receiveShadow, ...props } : ModelProps) => {
 
   const gltf : any = useLoader(GLTFLoader, src);
@@ -27,6 +27,7 @@ const Model = ({ src, castShadow, receiveShadow, ...props } : ModelProps) => {
 
 }
 
+// Log the position, rotation, and scale of an object
 function detailObject( {position, rotation, scale} : any ) {
   console.log(
 `Transformation:
@@ -39,14 +40,13 @@ scale={[${scale.x.toFixed(1)}, ${scale.y.toFixed(1)}, ${scale.z.toFixed(1)}]}`);
 export default function Home() {
 
   const [selected, setSelected] = useState(null);
-  
+
   return <>
     <VRButton />
     <Canvas shadows onPointerMissed={() => setSelected(null)}>
       <XR>
 
-
-        {/*@ts-ignore*/}
+        {/* Toggleable Transform Controls */}
         {(selected != null) && (  <TransformControls mode='translate' translationSnap={0.1} onMouseUp={e => detailObject(e?.target.object)} object={selected} />)}
 
         { /* Lighting */}
