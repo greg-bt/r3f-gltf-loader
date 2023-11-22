@@ -1,15 +1,17 @@
 'use client';
-import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
+import { VRButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas, MeshProps, useLoader } from '@react-three/fiber'
-import { Environment, OrbitControls } from '@react-three/drei';
+import { Environment, OrbitControls, TransformControls } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { TileableFloor, TileableRoof } from './components/TileablePlane';
+import { useState } from 'react';
+import { Object3D } from 'three';
 
 interface ModelProps extends MeshProps {
   src: string
 }
 
-function Model({ src, castShadow, receiveShadow, ...props } : ModelProps) {
+const Model = ({ src, castShadow, receiveShadow, ...props } : ModelProps) => {
 
   const gltf : any = useLoader(GLTFLoader, src);
 
@@ -25,39 +27,54 @@ function Model({ src, castShadow, receiveShadow, ...props } : ModelProps) {
 
 }
 
+function detailObject( {position, rotation, scale} : any ) {
+  console.log(
+`Transformation:
+position={[${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)}]}
+rotation={[${rotation._x.toFixed(1)}, ${rotation._y.toFixed(1)}, ${rotation._z.toFixed(1)}]}
+scale={[${scale.x.toFixed(1)}, ${scale.y.toFixed(1)}, ${scale.z.toFixed(1)}]}`);
+}
+
 
 export default function Home() {
+
+  const [selected, setSelected] = useState(null);
+  
   return <>
     <VRButton />
-      <Canvas shadows>
-        <XR>
-
-          { /* Lighting */}
-          <Environment background files={"./environment.hdr"} />
-          <directionalLight
-            position={[50,180,50]}
-            color={0xFFFAd8}
-            intensity={4.5}
-            castShadow
-            shadow-bias={-0.0001}
-          />
+    <Canvas shadows onPointerMissed={() => setSelected(null)}>
+      <XR>
 
 
-          { /* Controls */}
-          <OrbitControls makeDefault />
-          <Controllers />
-          <Hands />
+        {/*@ts-ignore*/}
+        {(selected != null) && (  <TransformControls mode='translate' translationSnap={0.1} onMouseUp={e => detailObject(e?.target.object)} object={selected} />)}
+
+        { /* Lighting */}
+        <Environment background files={"./environment.hdr"} />
+        <directionalLight
+          position={[50,180,50]}
+          color={0xFFFAd8}
+          intensity={4.5}
+          castShadow
+          shadow-bias={-0.0001}
+        />
 
 
-          { /* Objects */}
-          <gridHelper args={[100, 100]} />
+        { /* Controls */}
+        <OrbitControls makeDefault />
+        <Controllers />
+        <Hands />
 
-          <Model src="./Monitor.gltf" scale={[2,2,2]} position={[0,0.5,0]} castShadow receiveShadow/>
 
-          <TileableRoof src='./RoofTile.jpg' position={[0,2.4,0]} repeat={[4,4]} scale={4} castShadow/>
-          <TileableFloor src='./OfficeFloor.jpg' repeat={[3,3]} scale={4} receiveShadow />
+        { /* Objects */}
+        <gridHelper args={[100, 100]} />
 
-        </XR>
-      </Canvas>
+        <Model onClick={e => setSelected(e.eventObject)} src="./Monitor.gltf" scale={[2,2,2]} position={[0,0.5,0]} castShadow receiveShadow/>
+
+        <TileableRoof src='./RoofTile.jpg' position={[0,2.4,0]} repeat={[4,4]} scale={4} castShadow/>
+        <TileableFloor src='./OfficeFloor.jpg' repeat={[3,3]} scale={4} receiveShadow />
+
+      </XR>
+    </Canvas>
   </>
 }
