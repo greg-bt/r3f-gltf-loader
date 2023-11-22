@@ -3,21 +3,33 @@ import { VRButton, ARButton, XR, Controllers, Hands } from '@react-three/xr'
 import { Canvas, MeshProps, useLoader } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TileableFloor, TileableRoof } from './components/TileablePlane';
 
 interface ModelProps extends MeshProps {
-  url: string
+  src: string
 }
 
-function Model({ url, ...props } : ModelProps) {
-  const gltf : any = useLoader(GLTFLoader, url);
+function Model({ src, castShadow, receiveShadow, ...props } : ModelProps) {
+
+  const gltf : any = useLoader(GLTFLoader, src);
+
+  // Traverse model's meshes to set shadow casting
+  gltf.scene.traverse( ( node : any ) => {
+      if ( node.isMesh ) {
+        node.castShadow = castShadow;
+        node.receiveShadow = receiveShadow;
+      }
+  })
+
   return <primitive object={gltf.scene} {...props} />
+
 }
 
 
 export default function Home() {
   return <>
     <VRButton />
-      <Canvas>
+      <Canvas shadows>
         <XR>
 
           { /* Lighting */}
@@ -40,8 +52,10 @@ export default function Home() {
           { /* Objects */}
           <gridHelper args={[100, 100]} />
 
-          <Model url="./Monitor.gltf" scale={[2,2,2]} />
-          
+          <Model src="./Monitor.gltf" scale={[2,2,2]} position={[0,0.5,0]} castShadow receiveShadow/>
+
+          <TileableRoof src='./RoofTile.jpg' position={[0,2.4,0]} repeat={[4,4]} scale={4} castShadow/>
+          <TileableFloor src='./OfficeFloor.jpg' repeat={[3,3]} scale={4} receiveShadow />
 
         </XR>
       </Canvas>
